@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block content %}
+	<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+	<script type="text/python">
+		from browser import window, document, local_storage
+
+
+
+		storage = local_storage.storage
+		try:
+			if storage['username']:
+				document['message-field'].style.display = "block"
+				document['username-zone'].style.display = "none"
+		except KeyError:
+			document['message-field'].style.display = "none"
+			document['username-zone'].style.display = "block"
+
+		#socket = window.io.connect('http://bookdrive.herokuapp.com', {'transports': ["websocket"]})
+		socket = window.io.connect('127.0.0.1:5000', {'transports': ["websocket"]})
+		jq = window.jQuery
+
+		def handle_broadcast(data):
+			print(document['message-field'].style.width)
+			if data != "" and storage['username'] in data:
+				div = document.createElement("div")
+				div.className = "message-wrapper"
+				p = document.createElement("p")
+				p.className = "send-message-bubble"
+				div.style.float = "right"
+				p.innerText = data
+				div <= p
+				document['message-field'].insertBefore(div, document['br'])
+			elif data != "" and storage['username'] not in data:
+				div = document.createElement("div")
+				div.className = "message-wrapper"
+				p = document.createElement("p")
+				p.className = "recieve-message-bubble"
+				div.style.float = "right"
+				p.innerText = data
+				div <= p
+				document['message-field'].insertBefore(div, document['br'])
+			document['message-field'].scrollTop = document['message-field'].scrollHeight
+
+		socket.on('broadcast', handle_broadcast)
+
+		def func(e=None):
+			if document['input-field'].value != "":
+				socket.emit('my event', document['input-field'].value+f"\n-{storage['username']}")
+				document['input-field'].value = ""
+				socket.emit('my event', document['input-field'].value)
+
+		def event(e):
+			jq('#send-btn').click(func)
+
+		def disable(e):
+			if e.keyCode == 13:
+				e.preventDefault()
+				func()
+				e.target.value = ""
+				return False
+
+		def enter_event(e):
+			jq('#input-field').keypress(disable)
+
+		def disable_2(e):
+			if e.keyCode == 13:
+				e.preventDefault()
+				set_username()
+				return False
+
+		def username_enter(e):
+			jq('#username-field').keypress(disable_2)
+
+		def set_username(e=None):
+			storage['username'] = document['username-field'].value
+			document['username-zone'].style.display = "none"
+			document['message-field'].style.display = "block"
+
+		def username_btn(e):
+			jq('#username-btn').click(set_username)
+
+		jq(username_btn)
+		jq(username_enter)
+		jq(event)
+		jq(enter_event)
+	</script>
+	<div style="display: none;" id="message-field" class="message-field">
+		<!-- <div class="message-wrapper">
+			<p class="recieve-message-bubble">Nathan Johnson is JESUS!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
+		</div> -->
+		<br id="br">
+	</div>
+	<center>
+		<div id="input-div" class="input-div">
+			<input id="input-field" class="input-field" type="text" name="input-field">
+			<button id="send-btn" class="btn btn-success" type="button">Send</button>
+		</div>
+	</center>
+	<div id="username-zone" style="display: none;">
+		<center>
+			<label>Enter a Username</label>
+			<input type="text" name="username" id="username-field">
+			<button class="btn btn-success" id="username-btn" type="button">Enter</button>
+		</center>
+	</div>
+{% endblock %}

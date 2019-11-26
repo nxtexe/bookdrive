@@ -1,0 +1,177 @@
+@media only screen and (max-width: 991px) {
+	#nav-search-bar {
+    	visibility: hidden;
+    	display: none;
+	}
+}
+@media only screen and (max-width: 630px) {
+	.footer-arrow {
+		width: 30px!important;
+		height: 30px!important;
+		margin-bottom: 15px!important;
+	}
+}
+@media only screen and (min-width: 991px) {
+	#search-bar {
+    	display: none;
+    	padding-top: 1px;
+	}
+}
+.footer-arrow {
+	width: 27px;
+	height: 27px;
+	margin-bottom: 15px;
+}
+.navbar-brand {
+	width: 3%
+}
+@media only screen and (max-width: 730px) {
+	.navbar-brand {
+		width: 7%
+	}
+}
+.nav-logo {
+	width: 100%;
+	height: auto;
+}
+.form-inline {
+	margin: auto;
+	width: 50%;
+}
+.custom-switch {
+	margin-left: 20px;
+}
+.carousel-inner > .item > img {
+  margin: 0 auto;
+}
+.carousel-section {
+	width: 100%;
+}
+.slider-section {
+	overflow-x: scroll;
+	width: auto;
+	white-space: nowrap;
+	height: 30%;
+	margin-top: 10px;
+	margin-left: 10px;
+	overflow-y: inherit;
+}
+.slide-item {
+	display: inline-block;
+	width: 128px;
+	margin-right: 10px;
+	padding-top: 10px;
+}
+.slide-item-title {
+	overflow: hidden;
+}
+.slide-item-a:hover {
+	opacity: 0.5;
+}
+.slide-item-a {
+	transition: 1s;
+}
+.slide-item-author {
+	overflow: hidden;
+}
+.catalogue {
+	display: inline-flex;
+	flex-wrap: wrap;
+	margin: auto;
+	margin-top: 10px;
+	width: 100%;
+}
+.catalogue-item {
+	width: 128px;
+	margin-left: 10px;
+	height: auto;
+}
+.catalogue-item-title {
+	overflow: hidden;
+	font-family: 'Crimson Text', serif;
+}
+.catalogue-item-a:hover {
+	opacity: 0.5;
+}
+.catalogue-item-a {
+	transition: 1s;
+}
+.catalogue-item-author {
+	overflow: hidden;
+}
+.footer {
+	background-color: #07315e;	
+	margin: auto;
+	width: 100%;
+}
+.footer-row {
+	display: inline-flex;
+	flex-wrap: wrap;
+}
+.footer-column {
+	margin-left: 30px;
+}
+.sort-dropdown {
+	margin-left: 10px;
+}
+.sort-m {
+	margin-bottom: 0px;
+}
+.catalogue-a {
+	text-decoration: none!important;
+}
+.slider-a {
+	text-decoration: none!important;
+}
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+.search {
+	width: 100%;
+	position: relative;
+	display: flex;
+}
+.searchTerm {
+	width: 100%;
+	border: 3px solid #00B4CC;
+	border-right: none;
+	padding: 5px;
+	height: 36px;
+	border-radius: 5px 0 0 5px;
+	outline: none;
+	color: #9DBFAF;
+}
+.searchTerm:focus{
+	color: #00B4CC;
+}
+.searchButton {
+	width: 40px;
+	height: 36px;
+	border: 1px solid #00B4CC;
+	background: #00B4CC;
+	text-align: center;
+	color: #fff;
+	border-radius: 0 5px 5px 0;
+	cursor: pointer;
+	font-size: 20px;
+}
+/*Resize the wrap to see the search bar change!*/
+.wrap{
+	width: 100%;
+	position: relative;
+}
+.inline-wrap {
+	width: 50%;
+	position: relative;
+	margin: auto;
+}
+.search-icon {
+	width: 30px!important;
+	height: auto!important;
+	padding-bottom: 6px!important;
+	padding-right: 6px!important;
+}
+.enlarge:hover, .enlarge:active {
+	width: 130px;
+}
+.slide-item:hover, .slide-item:active {
+	padding-top: 0px;
+}

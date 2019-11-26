@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://fonts.googleapis.com/css?family=Crimson+Text&display=swap" rel="stylesheet"> 
+	<script src="/static/js_py/brython.js"></script>
+	<script src="/static/js_py/brython_stdlib.js"></script>
+	<script src="/static/js_py/jquery-3.4.1.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/body.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/messageboard.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+	<link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" />
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<title>BookDrive</title>
+</head>
+<body id="body" class="body-light" onload="brython()">
+	<script type="text/python">
+		from browser import window, local_storage, document
+		storage = local_storage.storage
+
+		try:
+			if storage['dark_mode'] == "on":
+				document['body'].className = "body-dark"
+				document['nav'].className = "navbar navbar-expand-lg navbar-dark bg-dark"
+				document['customSwitch1'].checked = "true"
+				document['dropdownMenuButton'].className = "btn btn-secondary"
+				a_list = document.getElementsByClassName("light-a")
+				for a in a_list:
+					a.className = a.className.replace('light', 'dark')
+				label_list = document.getElementsByClassName("light-label")
+				for label in label_list:
+					label.className = label.className.replace('light', 'dark')
+				document['dropdown-div'].className = document['dropdown-div'].className.replace('light', 'dark')
+		except KeyError:
+			storage['dark_mode'] = "off"
+
+		jq = window.jQuery
+
+		def body_change(e):
+			if storage['dark_mode'] == "off":
+				storage['dark_mode'] = "on"
+				document['body'].className = "body-dark"
+				document['nav'].className = "navbar navbar-expand-lg navbar-dark bg-dark"
+				document['dropdownMenuButton'].className = "btn btn-secondary"
+				a_list = document.getElementsByClassName("light-a")
+				for a in a_list:
+					a.className = a.className.replace('light', 'dark')
+				label_list = document.getElementsByClassName("light-label")
+				for label in label_list:
+					label.className = label.className.replace('light', 'dark')
+				document['dropdown-div'].className = document['dropdown-div'].className.replace('light', 'dark')
+			else:
+				storage['dark_mode'] = "off"
+				document['body'].className = "body-light"
+				document['nav'].className = "navbar navbar-expand-lg navbar-dark bg-primary"
+				document['dropdownMenuButton'].className = "btn btn-primary"
+				a_list = document.getElementsByClassName("dark-a")
+				for a in a_list:
+					a.className = a.className.replace('dark', 'light')
+				label_list = document.getElementsByClassName("dark-label")
+				for label in label_list:
+					label.className = label.className.replace('dark', 'light')
+				document['dropdown-div'].className = document['dropdown-div'].className.replace('dark', 'light')
+
+		def func(e):
+			jq('#customSwitch1').change(body_change)
+
+		def on_success(data, status, req):
+			print(req.responseText)
+
+		def search_async(e):
+			jq.ajax({'type': 'GET',
+						'success': on_success,
+						'url': '/search/'+e.target.value})
+
+		def func_2(e):
+			jq('.searchTerm').keypress(search_async)
+
+		jq(func_2)
+
+		jq(func)
+	</script>
+</body>
+	<nav id="nav" class="navbar navbar-expand-lg navbar-dark bg-primary">
+		<a class="navbar-brand" href="#"><img class="nav-logo" src="/static/assets/logo.png"> BookDrive</a>
+		<!-- <ul class="navbar-nav mr-auto">
+  			<li class="nav-item">
+  			</li>
+  		</ul> -->
+<!--   		<form id="nav-search-bar" class="form-inline my-2 my-lg-0">
+  			<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+  			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  		</form> -->
+  		<div id="nav-search-bar" class="inline-wrap">
+	  		<div class="search">
+	  			<input type="text" class="searchTerm" placeholder="Search">
+	  			<button type="submit" class="searchButton">
+	  				<img class="search-icon" src="/static/assets/search.png">
+	  			</button>
+	  		</div>
+  		</div>
+  		<div class="dropdown">
+				<button class="btn btn-primary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div id="dropdown-div" class="dropdown-menu dropdown-menu-right light-dropdown" aria-labelledby="dropdownMenuButton">
+					<a class="dropdown-item light-a" href="#">Wishlist</a>
+					<a class="dropdown-item light-a" href="#">Book Requested</a>
+					<a class="dropdown-item light-a" href="#">Sell</a>
+					<a class="dropdown-item light-a" href="#">Your Cart</a>
+					<a class="dropdown-item light-a" href="#">Your Account</a>
+					<a class="dropdown-item light-a" href="#">Logout</a>
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="customSwitch1">
+						<label class="custom-control-label light-label" for="customSwitch1">Dark Mode</label>
+					</div>
+				</div>
+		</div>
+    </nav>
+<!--     <form id="search-bar" class="form-inline my-2 my-lg-0">
+  		<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+  		<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  	</form> -->
+  	<div id="search-bar" class="wrap">
+  		<div class="search">
+  			<input type="text" class="searchTerm" placeholder="Search">
+  			<button type="submit" class="searchButton">
+  				<img class="search-icon" src="/static/assets/search.png">
+  			</button>
+  		</div>
+  	</div>
+	{% block content %}
+
+	{% endblock %}
+	<footer class="footer">
+		<center>
+			<div class="footer-row">
+				<div class="footer-column">
+					<h3>Products</h3>
+					<a href=""><h5>Premium</h5></a>
+				</div>
+				<div class="footer-column">
+					<h3>Company</h3>
+					<a href=""><h5>About Us</h5></a>
+					<a href=""><h5>Jobs</h5></a>
+					<a href=""><h5>Contact Us</h5></a>
+				</div>
+				<div class="footer-column">
+					<h3>Resources</h3>
+					<a href=""><h5>Terms of Service</h5></a>
+					<a href=""><h5>FAQ</h5></a>
+				</div>
+			</div>
+		</center>
+		<center>
+			<a href="#nav" style="display: block">
+				<img class="footer-arrow" src="/static/assets/up_arr.png">
+			</a>
+		</center>
+	</footer>
+</html>

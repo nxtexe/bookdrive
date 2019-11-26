@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+	<script type="text/python">
+		from browser import window, document
+
+		jq = window.jQuery
+		JSON = window.JSON
+
+		def on_success(data, status, req):
+			obj = JSON.parse(req.responseText)
+			document['results'].innerHTML = JSON.stringify(obj, 'undefined', 2)
+			document['results-for'].textContent = f"Showing Results For: {document['query-box'].value}"
+
+		def send_query(e=None):
+			form_data = window.FormData.new(jq('#query-form')[0])
+			jq.ajax({'type': 'POST',
+						'url': '/scrape',
+						'data': form_data,
+						'contentType': False,
+						'cache': False,
+						'processData': False,
+						'success': on_success})
+			return False
+
+		def func(e):
+			jq('#submit-button').click(send_query)
+			return False
+
+		def disable(e):
+			if e.keyCode == 13:
+				e.preventDefault()
+				send_query()
+				return False
+
+		def func2(e):
+			jq('#query-box').keypress(disable)
+			return False
+
+		def type_change(e):
+			document['type'].value = e.target.value.replace("Display as ", "").replace("Display as", "").lower()
+
+		def type_func(e):
+			jq('.custom-select').change(type_change)
+
+		jq(func2)
+		jq(func)
+		jq(type_func)
+	</script>
+	<center>
+		<center><label for="query-box">Enter A URL</label></center>
+		<form style="width: 50%; display: inline-flex;" id="query-form">
+			<input style="width: 70%" type="text" name="query" id="query-box">
+			<input type="hidden" name="type" id="type">
+			<select required style="width: 30%; margin-left: 10px; margin-right: 10px" class="custom-select">
+  				<option selected>Display as</option>
+  				<option value="raw">Display as Raw</option>
+  				<option value="sorted">Display as Sorted</option>
+			</select>
+			<button class="btn btn-success" type="button" id="submit-button">Search</button>
+		</form>
+	</center>
+	<p id="results-for">Showing Results For: </p>
+	<pre class="light-a" id="results" style="color: white"></pre>
+{% endblock %}

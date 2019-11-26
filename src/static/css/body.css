@@ -1,0 +1,26 @@
+.body-light {
+	background-color: white;
+	color: black;
+}
+.body-dark {
+	background-color: #1F1F1F;
+	color: white;
+}
+.dark-a {
+	color: white!important;
+}
+.light-a {
+	color: black!important;
+}
+.dark-dropdown {
+	background-color: #1F1F1F!important;
+}
+.light-dropdown {
+	background-color: white!important;
+}
+.dark-label {
+	color: white;
+}
+.light-label {
+	color: black;
+}

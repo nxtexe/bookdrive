@@ -1,0 +1,47 @@
+.recieve-message-bubble {
+  border-radius: 15px 50px 30px 5px;
+  background: #4c00a3;
+  padding: 5px;
+  display: inline-block;
+  max-width: 400px;
+  word-break: break-all;
+  min-height: 20px;
+  float: left;
+}
+.send-message-bubble {
+  border-radius: 50px 15px 5px 30px;
+  background: #4c00a3;
+  padding: 5px;
+  display: inline-block;
+  max-width: 400px;
+  word-break: break-all;
+  min-height: 20px;
+  padding-left: 15px;
+  float: right;
+}
+.message-wrapper {
+	width: 100%;
+}
+.message-field {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	margin-top: 10px;
+	width: 50%;
+	height: 55%;
+	overflow-y: scroll;
+}
+.input-div {
+	width: 50%;
+	margin-top: 30%;
+	display: inline-flex;
+}
+.input-button {
+	width: 20%;
+}
+.input-field {
+	margin: auto;
+	width: 80%;
+	height: 30px;
+	border-radius: 5px;
+}
