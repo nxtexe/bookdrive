@@ -8,10 +8,10 @@
 			</ol>
 			<div class="carousel-inner">
 				<div class="carousel-item active">
-					<img src="http://www.firstchurchofwinsted.org/sitebuilder/images/sunset_large_yellowOrange-776x263.jpg" class="d-block w-100" alt="...">
+					<img src="/static/assets/slide1.jpg" class="d-block w-100" alt="...">
 				</div>
 				<div class="carousel-item">
-					<img src="http://www.millcreekantiques.com/sitebuilder/images/banner5-776x263.jpg" class="d-block w-100" alt="...">
+					<img src="/static/assets/slide2.jpg" class="d-block w-100" alt="...">
 				</div>
 			</div>
 			<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
@@ -24,63 +24,25 @@
 			</a>
 		</div>
 	</section>
-	<section class="slider-section">
+	<section id="slider-section" class="slider-section">
+		<button class="scroll-btn left-scroll" id="left-scroll-btn" type="button"><img style="width: 40px; height: auto;" src="/static/assets/left-arr.png"></button>
+		{% for book in books %}
+		{% if book.active %}
 		<div class="slide-item">
-			<a class="slide-item-a light-a slider-a" href="#">
-				<img class="enlarge" src="http://books.google.com/books/content?id=eFeLQwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$500</h5>
-				<h6 class="slide-item-title">Caribbean School Hymn Book</h6>
-				<h6 class="slide-item-author">By Noel Dexter</h6>
+			<a class="slide-item-a light-a slider-a" href="#" data-toggle="tooltip" data-placement="right" title="{{ book.title }}">
+				<img class="enlarge" src="{{ book.cover_img }}">
+				<h5 ><span class="price-font">${{ book.price }}</span></h5>
+				<h6 class="slide-item-title"><span class="book-font">{{ book.title }}</span></h6>
+				{% if book.authors != "" %}
+				<h6 class="slide-item-author"><span class="book-font">By {{ book.authors }}</span></h6>
+				{% endif %}
 			</a>
 		</div>
-		<div class="slide-item">
-			<a class="slide-item-a light-a slider-a" href="#">
-				<img class="enlarge" src="http://books.google.com/books/content?id=eFeLQwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$500</h5>
-				<h6 class="slide-item-title">Caribbean School Hymn Book</h6>
-				<h6 class="slide-item-author">By Noel Dexter</h6>
-			</a>
-		</div>
-		<div class="slide-item">
-			<a class="slide-item-a light-a slider-a" href="#">
-				<img class="enlarge" src="http://books.google.com/books/content?id=eFeLQwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$500</h5>
-				<h6 class="slide-item-title">Caribbean School Hymn Book</h6>
-				<h6 class="slide-item-author">By Noel Dexter</h6>
-			</a>
-		</div>
-		<div class="slide-item">
-			<a class="slide-item-a light-a slider-a" href="#">
-				<img class="enlarge" src="http://books.google.com/books/content?id=eFeLQwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$500</h5>
-				<h6 class="slide-item-title">Caribbean School Hymn Book</h6>
-				<h6 class="slide-item-author">By Noel Dexter</h6>
-			</a>
-		</div>
-		<div class="slide-item">
-			<a class="slide-item-a light-a slider-a" href="#">
-				<img class="enlarge" src="http://books.google.com/books/content?id=eFeLQwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$500</h5>
-				<h6 class="slide-item-title">Caribbean School Hymn Book</h6>
-				<h6 class="slide-item-author">By Noel Dexter</h6>
-			</a>
-		</div>
-		<div class="slide-item">
-			<a class="slide-item-a light-a slider-a" href="#">
-				<img class="enlarge" src="http://books.google.com/books/content?id=eFeLQwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$500</h5>
-				<h6 class="slide-item-title">Caribbean School Hymn Book</h6>
-				<h6 class="slide-item-author">By Noel Dexter</h6>
-			</a>
-		</div>
-		<div class="slide-item">
-			<a class="slide-item-a light-a slider-a" href="#">
-				<img class="enlarge" src="http://books.google.com/books/content?id=eFeLQwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$500</h5>
-				<h6 class="slide-item-title">Caribbean School Hymn Book</h6>
-				<h6 class="slide-item-author">By Noel Dexter</h6>
-			</a>
-		</div>
+		{% endif %}
+		{% endfor %}
+		<button class="scroll-btn right-scroll" id="right-scroll-btn" type="button">
+			<img style="width: 40px; height: auto;" src="/static/assets/right-arr.png">
+		</button>
 	</section>
 	<br>
 	<div style="display: inline-flex;">
@@ -96,116 +58,86 @@
 	    </div>
 	    <button id="order-button" class="btn btn-success sort-dropdown">Ascending</button>
 	</div>
-    <hr>
 	<div class="catalogue">
+		{% for book in books %}
+		{% if book.active %}
 		<div class="catalogue-item">
 			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
+				<img src="{{ book.cover_img }}">
+				<h5><span class="price-font">${{ book.price }}</span></h5>
+				<h6 class="catalogue-item-title"><span class="book-font">{{ book.title }}</span></h6>
+				<h6 class="catalogue-item-author"><span class="book-font">By {{ book.authors }}</span></h6>
 			</a>
 		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-				<h6 class="catalogue-item-author">By John B. Taylor</h6>
-			</a>
-		</div>
-		<div class="catalogue-item">
-			<a class="catalogue-item-a light-a catalogue-a" href="#">
-				<img src="http://books.google.com/books/content?id=Dsb7wAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api">
-				<h5>$600</h5>
-				<h6 class="catalogue-item-title">Principles of Economics</h6>
-			</a>
-		</div>
+		{% endif %}
+		{% endfor %}
+		<svg style="width: 128px; margin: auto;">
+			<rect class="rect" style="width: 100%;"></rect>
+		</svg>
+		<svg style="width: 128px; margin: auto;">
+			<rect class="rect" style="width: 100%;"></rect>
+		</svg>
+		<svg class="hidden-mobile" style="width: 128px; margin: auto;">
+			<rect class="rect" style="width: 100%;"></rect>
+		</svg>
+		<svg class="hidden-mobile" style="width: 128px; margin: auto;">
+			<rect class="rect" style="width: 100%;"></rect>
+		</svg>
+		<svg class="hidden-mobile" style="width: 128px; margin: auto;">
+			<rect class="rect" style="width: 100%;"></rect>
+		</svg>
+		<svg class="hidden-mobile" style="width: 128px; margin: auto;">
+			<rect class="rect" style="width: 100%;"></rect>
+		</svg>
+		<svg class="hidden-mobile" style="width: 128px; margin: auto;">
+			<rect class="rect" style="width: 100%;"></rect>
+		</svg>
 	</div>
 	<script type="text/python">
 		from browser import local_storage, window, document
 
 		jq = window.jQuery
+
+		scroll_btns = document.getElementsByClassName("scroll-btn")
+		if document['slider-section'].scrollWidth > window.innerWidth and window.innerWidth > 991:
+			for btn in scroll_btns:
+				btn.style.display = "block"
+		else:
+			for btn in scroll_btns:
+				btn.style.display = "none"
+
+		def resize_func(e):
+			if document['slider-section'].scrollWidth == window.innerWidth:
+				for btn in scroll_btns:
+					btn.style.display = "none"
+			else:
+				if window.innerWidth > 991:
+					for btn in scroll_btns:
+						btn.style.display = "block"
+				else:
+					for btn in scroll_btns:
+						btn.style.display = "none"
+
+		def resize_event(e):
+			jq(window).resize(resize_func)
+
+		jq(resize_event)
+
+		def left_scroll(e):
+			jq('#slider-section').animate({
+				'scrollLeft': "-=500px"
+			}, "slow")
+
+		def right_scroll(e):
+			jq('#slider-section').animate({
+				'scrollLeft': "+=500px"
+			}, "slow")
+
+		def scroll_event(e):
+			jq('#left-scroll-btn').click(left_scroll)
+			jq('#right-scroll-btn').click(right_scroll)
+
+		jq(scroll_event)
 		storage = local_storage.storage
 
 		try:

@@ -1,0 +1,226 @@
+{% extends "authentication_pages.html" %}
+{% block form %}
+		<form id="login-form-1" class="login-form">
+			<div class="form-group">
+				<label for="email-zone">Email address</label>
+				<input type="email" class="form-control pill" id="email-zone" name="email" aria-describedby="emailHelp" placeholder="email@example.com">
+				<input type="hidden" name="o_auth" id="o_auth" value="">
+				<small for="email-zone" id="warning"></small>
+				<input type="hidden" name="part" value="1">
+			</div>
+			<center><button id="continue" type="button" class="btn btn-primary">Continue</button></center>
+		</form>
+		<form id="login-form-2" class="login-form" style="display: none;">
+			<div class="form-group row" style="display: block">
+    			<label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+    			<div class="col-sm-10">
+      				<input id="static-email" type="text" name="email" readonly class="form-control-plaintext" style="text-align: center;" id="staticEmail" value="">
+    			</div>
+  			</div>
+			<div class="form-group">
+				<label for="password">Password</label>
+				<input class="form-control pill" type="password" name="password" id="password">
+				<small id="warning-2" for="password"></small>
+				<input type="hidden" name="part" value="2">
+			</div>
+			<center><button id="login" type="button" class="btn btn-success">Login</button></center>
+		</form>
+		<hr>
+		<input type="hidden" id="google-success">
+		<div id="google-login" class="g-signin2" data-onsuccess="onSignIn"></div>
+		<br>
+		<p id="signup-link">New Around Here? <a href="/signup">Sign Up!</a></p>
+		<script type="text/javascript">
+			function onSignIn(googleUser) {
+  				var profile = googleUser.getBasicProfile();
+  				var input = document.getElementById("google-success");
+  				var email = document.getElementById("email-zone");
+  				email.setAttribute("value", profile.getEmail())
+  				input.setAttribute("value", true);
+  				$('#google-success').trigger('change')
+			}
+		</script>
+		<script type="text/python">
+			from browser import window, document, local_storage
+			jq = window.jQuery
+
+			history = window.history
+			def show_func(e):
+				if window.location.href.split('?')[-1] != "page=2":
+					document['login-form-1'].style.display = "block"
+					document['login-form-1'].visible = True
+					document['login-form-2'].visible = False
+					document['login-form-2'].style.display = "none"
+					document['back-btn'].style.visibility = "hidden"
+					storage['login_page'] = "1"
+				else:
+					document['login-form-2'].style.display = "block"
+					document['login-form-2'].visible = True
+					document['login-form-1'].visible = False
+					document['login-form-1'].style.display = "none"
+					if window.innerWidth <= 1024:
+						document['back-btn'].style.visibility = "visible"
+					storage['login_page'] = "2"
+
+			window.addEventListener('popstate', show_func)
+			storage = local_storage.storage
+			try:
+				document['static-email'].value = storage['last_email']
+			except KeyError:
+				storage['last_email'] = ''
+
+
+			try:
+				if storage['user_info'] and storage['login_page']:
+					if storage['login_page'] == "1" or window.location.href.split('?')[-1] != "page=2":
+						document['login-form-1'].style.display = "block"
+						document['login-form-1'].visible = True
+						document['login-form-2'].visible = False
+						document['back-btn'].style.visibility = "hidden"
+					else:
+						document['login-form-2'].style.display = "block"
+						document['login-form-2'].visible = True
+						document['login-form-1'].visible = False
+						if window.innerWidth <= 1024:
+							document['back-btn'].style.visibility = "visible"
+			except KeyError:
+				storage['user_info'] = "{}"
+				storage['login_page'] = "1"
+				document['login-form-1'].style.display = "block"
+				document['login-form-1'].visible = True
+				document['login-form-2'].visible = False
+				document['back-btn'].style.visibility = "hidden"
+
+			def on_success(data, status, req):
+				if req.responseText == "Continue":
+					print(req.responseText)
+					storage['user_info'] = str({'email': document['email-zone'].value})
+					document['static-email'].value = document['email-zone'].value
+					document['login-form-1'].style.display = "none"
+					document['login-form-1'].visible = False
+					document['login-form-2'].style.display = "block"
+					document['login-form-2'].visible = True
+					if window.innerWidth <= 1024:
+						document['back-btn'].style.visibility = "visible"
+					storage['login_page'] = "2"
+					try:
+						if int(storage['history_count']) < 1:
+							history.pushState({'page': 1}, 'Login', "?page=2")
+							storage['history_count'] = "1"
+					except KeyError:
+						history.pushState({'page': 1}, 'Login', "?page=2")
+						storage['history_count'] = "0"
+				elif req.responseText == "User Doesn't Exist":
+					document['email-zone'].style.borderColor = "red"
+					a = document.createElement("a")
+					a.href = "/signup"
+					a <= "Sign Up!"
+					document['warning'].innerHTML = f"Sorry, We Couldn't Find Your Account :( . "
+					document['warning'] <= a
+					document['warning'].style.color = "red"
+				elif req.responseText == "Google User":
+					document['email-zone'].style.borderColor = "red"
+					document['warning'].innerHTML = "This Email Address Is Already Associated With A Google Account :) . Hit Sign In Below!"
+					document['warning'].style.color = "red"
+
+				elif req.responseText.split('/')[-1] == "login":
+					storage['user_info'] = "{}"
+					storage['login_page'] = "1"
+					storage['last_email'] = document['email-zone'].value
+					storage['history_count'] = "0"
+					window.location.href = "/"
+				else:
+					storage['last_email'] = document['email-zone'].value
+					storage['user_info'] = "{}"
+					storage['login_page'] = "1"
+					storage['history_count'] = "0"
+					window.location.href = req.responseText
+
+			def on_success_2(data, status, req):
+				if req.responseText == "Password Invalid":
+					document['password'].style.borderColor = "red"
+					document['warning-2'].innerHTML = "Password Invalid!"
+					document['warning-2'].style.color = "red"
+				elif req.responseText.split('/')[-1] == "login":
+					storage['user_info'] = "{}"
+					storage['login_page'] = "1"
+					storage['last_email'] = document['email-zone'].value
+					storage['history_count'] = "0"
+					window.location.href = "/"
+				else:
+					storage['last_email'] = document['email-zone'].value
+					storage['user_info'] = "{}"
+					storage['login_page'] = "1"
+					storage['history_count'] = "0"
+					window.location.href = req.responseText
+
+
+			def send_data(e=None):
+				if document['email-zone'].value != "":
+					form_data = window.FormData.new(jq('#login-form-1')[0])
+					jq.ajax({
+						'type': 'POST',
+						'url': '/login',
+						'data': form_data,
+						'contentType': False,
+						'cache': False,
+						'processData': False,
+						'success': on_success
+					})
+					document['email-zone'].style.borderColor = "green"
+					storage['history_count'] = "0"
+				else:
+					document['email-zone'].style.borderColor = "red"
+
+			def send_data_2(e=None):
+				if document['password'] != "":
+					form_data = window.FormData.new(jq('#login-form-2')[0])
+					jq.ajax({
+						'type': 'POST',
+						'url': '/login',
+						'data': form_data,
+						'contentType': False,
+						'cache': False,
+						'processData': False,
+						'success': on_success_2
+					})
+					document['password'].style.borderColor = "green"
+				else:
+					document['password'].style.borderColor = "red"
+
+			def enter_event(e):
+				if e.keyCode == 13:
+					if e.target.value != "":
+						e.preventDefault()
+						if document['login-form-1'].visible:
+							send_data()
+						else:
+							send_data_2()
+						e.target.style.borderColor = "green"
+					else:
+						e.target.style.borderColor = "red"
+					return False
+
+			def back(e):
+				document['login-form-2'].style.display = "none"
+				document['login-form-2'].visible = False
+				document['login-form-1'].style.display = "block"
+				document['login-form-1'].visible = True
+				document['back-btn'].style.visibility = "hidden"
+				storage['login_page'] = "1"
+
+			def o_auth(e):
+				document['o_auth'].value = "1"
+				send_data()
+
+			def email_event(e):
+				jq('#continue').click(send_data)
+				jq('#login').click(send_data_2)
+				jq('#email-zone').keypress(enter_event)
+				jq('#password').keypress(enter_event)
+				jq('#back-btn').click(back)
+				jq('#google-success').change(o_auth)
+
+			jq(email_event)
+		</script>
+{% endblock %}

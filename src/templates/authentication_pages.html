@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block head %}
+	
+{% endblock %}
+{% block content %}
+		<center>
+			<a href="/">
+				<img class="logo-img" src="/static/assets/logo.png">
+			</a>
+		</center>
+		<center>
+			<a style="text-decoration: none;" href="/">
+				<h3 style="color: white">BookDrive</h3>
+			</a>
+		</center>
+	</div>
+	<div class="form-wrap">
+		<div class="authen-header">
+			<button id="back-btn" class="back-btn">
+				<i class="fa fa-arrow-left" style="color: #1f5da8"></i>
+			</button>
+			<h3 class="wrap-title" style="top: 10px;">{{ name }}</h3>
+		</div>
+		<hr class="header-hr">
+		{% block form %}
+
+		{% endblock %}
+	</div>
+{% endblock %}

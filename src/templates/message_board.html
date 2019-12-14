@@ -4,23 +4,14 @@
 	<script type="text/python">
 		from browser import window, document, local_storage
 
-
-
 		storage = local_storage.storage
-		try:
-			if storage['username']:
-				document['message-field'].style.display = "block"
-				document['username-zone'].style.display = "none"
-		except KeyError:
-			document['message-field'].style.display = "none"
-			document['username-zone'].style.display = "block"
+		storage['username'] = "{{ current_user.email }}"
 
 		#socket = window.io.connect('http://bookdrive.herokuapp.com', {'transports': ["websocket"]})
 		socket = window.io.connect('127.0.0.1:5000', {'transports': ["websocket"]})
 		jq = window.jQuery
 
 		def handle_broadcast(data):
-			print(document['message-field'].style.width)
 			if data != "" and storage['username'] in data:
 				div = document.createElement("div")
 				div.className = "message-wrapper"
@@ -84,10 +75,7 @@
 		jq(event)
 		jq(enter_event)
 	</script>
-	<div style="display: none;" id="message-field" class="message-field">
-		<!-- <div class="message-wrapper">
-			<p class="recieve-message-bubble">Nathan Johnson is JESUS!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
-		</div> -->
+	<div  id="message-field" class="message-field">
 		<br id="br">
 	</div>
 	<center>

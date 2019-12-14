@@ -1,0 +1,856 @@
+{% extends "base.html" %}
+{% block head %}
+<script src="/static/js_py/jquery-auto-resize.min.js"></script>
+{% endblock %}
+{% block content %}
+	<div class="page-wrap">
+		<div id="side-bar-wrapper" class="side-bar-wrapper">
+			<button id="side-bar-btn" type="button" class="side-bar-btn light-btn"><i class="fa fa-chevron-right light-chevron"></i></button>
+			<ul id="side-bar" class="side-bar light-side-bar">
+				<li class="side-bar-item" value="1">
+					<a class="light-a side-bar-a" href="#wishlist"><img class="side-bar-img light-img 1" src="/static/assets/light-wand.png"> Wishlist</a>
+					<img class="side-bar-img light-img compact-img 1" src="/static/assets/light-wand.png"> 
+				</li>
+				<li class="side-bar-item" value="2">
+					<a class="light-a side-bar-a" href="#requested"><img class="side-bar-img light-img 2" src="/static/assets/light-exclamation.png"> Books Requested</a>
+					<img class="side-bar-img light-img compact-img 2" src="/static/assets/light-exclamation.png">
+				</li>
+				<li class="side-bar-item" value="3">
+					<a class="light-a side-bar-a" href="#sell"><img class="side-bar-img light-img 3" src="/static/assets/light-dollar.png"> Sell</a>
+					<img class="side-bar-img light-img compact-img 3" src="/static/assets/light-dollar.png"> 
+				</li>
+				<li class="side-bar-item" value="4">
+					<a class="light-a side-bar-a" href="#cart"><img class="side-bar-img light-img 4" src="/static/assets/light-cart.png"> Your Cart</a>
+					<img class="side-bar-img light-img compact-img 4" src="/static/assets/light-cart.png">
+				</li>
+				<li class="side-bar-item" value="5">
+					<a class="light-a side-bar-a" href="#profile"><img class="side-bar-img light-img 5" src="/static/assets/light-account.png">  Your Profile</a>
+					<img class="side-bar-img light-img compact-img 5" src="/static/assets/light-account.png">
+				</li>
+				<li class="side-bar-item" value="6">
+					{% if current_user.o_auth %}
+					<a class="light-a side-bar-a" href="#" onclick="signOut();"><img class="side-bar-img light-img 6" src="/static/assets/light-logout.png"> Logout</a>
+					<script>
+						function signOut() {
+							var auth2 = gapi.auth2.getAuthInstance();
+							auth2.signOut()
+							window.location.href = "/logout";
+						}
+						window.onload = function() {
+							gapi.load('auth2', function() {
+								gapi.auth2.init();
+							});
+						}
+					</script>
+					{% else %}
+					<a class="light-a side-bar-a" href="/logout"><img class="side-bar-img light-img 6" src="/static/assets/light-logout.png"> Logout</a>
+					{% endif %}
+					<img class="side-bar-img light-img compact-img 6" src="/static/assets/light-logout.png">
+				</li>
+			</ul>
+		</div>
+		<div class="sell-page" id="sell">
+			<h1 id="sell-header" class="sell-header">List A Book</h1>
+			<hr class="body-light divider">
+			<div class="step-div">
+				<ol class="step-indicator">
+					<li class="step">
+						<button id="step-1" class="step-btn" disabled>
+							<span style="visibility: hidden;">1</span>
+						</button>
+					</li>
+					<li class="step">
+						<button id="step-2" class="step-btn" disabled>
+							<span style="visibility: hidden;">2</span>
+						</button>
+					</li>
+					<li class="step">
+						<button id="step-3" class="step-btn" disabled>
+							<span style="visibility: hidden;">3</span>
+						</button>
+					</li>
+				</ol>
+			</div>
+			<br>
+			<br>
+			<p id="isbn-label" style="display: none;" for="isbn" class="isbn-label">Enter An ISBN</p>
+			<br>
+			<div id="spinner" style="display: none;" class="spinner-wrap isbn-load">
+				<i class="fa fa-spinner fa-spin"></i>
+			</div>
+			<input type="text" style="display: none;" id="isbn" class="isbn-bar pill" placeholder="ABCD1234">
+			<p id="msg" class="msg"></p>
+			<button type="button" style="display: none;" class="btn btn-warning isbn-btn" id="isbn-btn">Auto-Generate</button>
+			<script type="text/python">
+				from browser import window, document, local_storage, alert
+				jq = window.jQuery
+				def resize_func(e):
+					jq('#description').autoresize(1, 10)
+
+				jq(document).ready(resize_func)
+				storage = local_storage.storage
+				history = window.history
+				key = "AIzaSyCX1nmVzR20JFR4YPjt9R9mE_L26Q_XMtY"
+
+				def show_func(e):
+					if "page=2" in window.location.href.split("?")[-1]:
+						try:
+							if storage['book_info'] == "":
+								window.location.href = "/account#sell"
+							else:
+								book_info = eval(storage['book_info'])
+								document['step-2-div'].style.display = ""
+								document['step-3-div'].style.display = "none"
+								document['sell-form-1'].style.display = "none"
+								document['or-wrap'].style.display = "none"
+								document['isbn-btn'].style.display = "none"
+								document['custom-tooltip'].style.display = "none"
+								document['isbn'].style.display = "none"
+								document['spinner'].style.display = "none"
+								document['isbn-label'].style.display = "none"
+								document['msg'].style.display = "none"
+								document['step-3-div'].style.display = "none"
+								document['step-1'].className = "step-btn complete"
+								document['step-2'].className = "step-btn"
+								document['step-3'].className = "step-btn"
+								document['display-title'].innerHTML = book_info['title']
+								try:
+									if book_info['edition'][-1] == "1":
+										document['display-edition'].innerHTML = f"{book_info['edition']}st Edition"
+									elif book_info['edition'][-1] == "2":
+										document['display-edition'].innerHTML = f"{book_info['edition']}nd Edition"
+									elif book_info['edition'][-1] == "3":
+										document['display-edition'].innerHTML = f"{book_info['edition']}rd Edition"
+									else:
+										document['display-edition'].innerHTML = f"{book_info['edition']}th Edition"
+								except IndexError:
+									pass
+								document['display-publish-date'].innerHTML = book_info['publish_date']
+								document['display-author'].innerHTML = f"By {', '.join(book_info['authors'])}"
+								document['display-cover'].src = book_info['cover_image']
+								document['display-cover-a'].href = book_info['cover_image']
+								document['display-cover-a'].target = "_blank"
+								document['step-1'].className = document['step-1'].className + " complete"
+						except KeyError:
+							window.location.href = "/account#sell"
+					elif "page=3" in window.location.href.split("?")[-1]:
+						try:
+							if storage['book_info'] == "":
+								window.location.href = "/account#sell"
+							else:
+								book_info = eval(storage['book_info'])
+								document['sell-form-1'].style.display = "none"
+								document['or-wrap'].style.display = "none"
+								document['isbn-btn'].style.display = "none"
+								document['custom-tooltip'].style.display = "none"
+								document['isbn'].style.display = "none"
+								document['spinner'].style.display = "none"
+								document['isbn-label'].style.display = "none"
+								document['msg'].style.display = "none"
+								document['step-3-div'].style.display = ""
+								document['step-2-div'].style.display = "none"
+								document['display-title-2'].innerHTML = book_info['title']
+								try:
+									if book_info['edition'][-1] == "1":
+										document['display-edition-2'].innerHTML = f"{book_info['edition']}st Edition"
+									elif book_info['edition'][-1] == "2":
+										document['display-edition-2'].innerHTML = f"{book_info['edition']}nd Edition"
+									elif book_info['edition'][-1] == "3":
+										document['display-edition-2'].innerHTML = f"{book_info['edition']}rd Edition"
+									else:
+										document['display-edition-2'].innerHTML = f"{book_info['edition']}th Edition"
+								except IndexError:
+									pass
+								document['display-publish-date-2'].innerHTML = book_info['publish_date']
+								document['display-author-2'].innerHTML = f"By {', '.join(book_info['authors'])}"
+								document['display-cover-2'].src = book_info['cover_image']
+								document['display-cover-a-2'].href = book_info['cover_image']
+								document['display-cover-a-2'].target = "_blank"
+								document['display-price-2'].innerHTML = f"${book_info['price']}"
+								document['display-description'].innerHTML = book_info['description']
+								document['step-1'].className = document['step-1'].className + " complete"
+								document['step-2'].className = document['step-2'].className + " complete"
+						except KeyError:
+							window.location.href = "/account#sell"
+					else:
+						document['sell-form-1'].style.display = ""
+						document['or-wrap'].style.display = ""
+						document['isbn-btn'].style.display = ""
+						document['custom-tooltip'].style.display = ""
+						document['isbn'].style.display = ""
+						document['spinner'].style.display = ""
+						document['isbn-label'].style.display = ""
+						document['step-1'].className = "step-btn"
+						document['step-2'].className = "step-btn"
+						document['step-3'].className = "step-btn"
+						document['step-2-div'].style.display = "none"
+						document['step-3-div'].style.display = "none"
+
+				window.addEventListener('popstate', show_func)
+				if "page=2" in window.location.href.split("?")[-1]:
+					try:
+						if storage['book_info'] == "":
+							window.location.href = "/account#sell"
+						else:
+							book_info = eval(storage['book_info'])
+							document['step-2-div'].style.display = ""
+							document['display-title'].innerHTML = book_info['title']
+							try:
+								if book_info['edition'][-1] == "1":
+									document['display-edition'].innerHTML = f"{book_info['edition']}st Edition"
+								elif book_info['edition'][-1] == "2":
+									document['display-edition'].innerHTML = f"{book_info['edition']}nd Edition"
+								elif book_info['edition'][-1] == "3":
+									document['display-edition'].innerHTML = f"{book_info['edition']}rd Edition"
+								else:
+									document['display-edition'].innerHTML = f"{book_info['edition']}th Edition"
+							except IndexError:
+								pass
+							document['display-publish-date'].innerHTML = book_info['publish_date']
+							document['display-author'].innerHTML = f"By {', '.join(book_info['authors'])}"
+							document['display-cover'].src = book_info['cover_image']
+							document['display-cover-a'].href = book_info['cover_image']
+							document['display-cover-a'].target = "_blank"
+							document['step-1'].className = document['step-1'].className + " complete"
+					except KeyError:
+						window.location.href = "/account#sell"
+				elif "page=3" in window.location.href.split("?")[-1]:
+					try:
+						if storage['book_info'] == "":
+							window.location.href = "/account#sell"
+						else:
+							book_info = eval(storage['book_info'])
+							document['sell-form-1'].style.display = "none"
+							document['or-wrap'].style.display = "none"
+							document['isbn-btn'].style.display = "none"
+							document['custom-tooltip'].style.display = "none"
+							document['isbn'].style.display = "none"
+							document['spinner'].style.display = "none"
+							document['isbn-label'].style.display = "none"
+							document['msg'].style.display = "none"
+							document['step-3-div'].style.display = ""
+							document['step-2-div'].style.display = "none"
+							document['display-title-2'].innerHTML = book_info['title']
+							try:
+								if book_info['edition'][-1] == "1":
+									document['display-edition-2'].innerHTML = f"{book_info['edition']}st Edition"
+								elif book_info['edition'][-1] == "2":
+									document['display-edition-2'].innerHTML = f"{book_info['edition']}nd Edition"
+								elif book_info['edition'][-1] == "3":
+									document['display-edition-2'].innerHTML = f"{book_info['edition']}rd Edition"
+								else:
+									document['display-edition-2'].innerHTML = f"{book_info['edition']}th Edition"
+							except IndexError:
+								pass
+							document['display-publish-date-2'].innerHTML = book_info['publish_date']
+							document['display-author-2'].innerHTML = f"By {', '.join(book_info['authors'])}"
+							document['display-cover-2'].src = book_info['cover_image']
+							document['display-cover-a-2'].href = book_info['cover_image']
+							document['display-cover-a-2'].target = "_blank"
+							document['display-price-2'].innerHTML = f"${book_info['price']}"
+							document['display-description'].innerHTML = book_info['description']
+							document['step-1'].className = document['step-1'].className + " complete"
+							document['step-2'].className = document['step-2'].className + " complete"
+					except KeyError:
+						window.location.href = "/account#sell"
+				else:
+					document['sell-form-1'].style.display = ""
+					document['or-wrap'].style.display = ""
+					document['isbn-btn'].style.display = ""
+					document['custom-tooltip'].style.display = ""
+					document['isbn'].style.display = ""
+					document['spinner'].style.display = ""
+					document['isbn-label'].style.display = ""
+					document['step-1'].className = "step-btn"
+					document['step-2'].className = "step-btn"
+					document['step-3'].className = "step-btn"
+
+				def on_success(data, status, req):
+					book_info = eval(req.responseText.replace('false', 'False').replace('true', 'True').replace('null', 'None'))
+					if book_info['totalItems'] != 0:
+						data_dict = {}
+						try:
+							title = book_info['items'][0]['volumeInfo']['title']
+							document['title'].value = title
+							data_dict['title'] = title
+						except KeyError:
+							pass
+						try:
+							isbn = document['isbn'].value
+							document['isbn-2'].value = isbn
+							data_dict['isbn'] = isbn
+						except KeyError:
+							pass
+						try:	
+							authors = book_info['items'][0]['volumeInfo']['authors']
+							document['author'].value = ', '.join(authors)
+							data_dict['authors'] = authors
+						except KeyError:
+							pass
+						try:
+							publish_date = book_info['items'][0]['volumeInfo']['publishedDate'].split('-')[0]
+							document['published'].value = publish_date.split('-')[0]
+							data_dict['publish_date'] = publish_date
+						except KeyError:
+							pass
+						try:
+							publisher = book_info['items'][0]['volumeInfo']['publisher']
+							document['publisher'].value = publisher
+							data_dict['publisher'] = publisher
+						except KeyError:
+							pass
+						try:
+							description = book_info['items'][0]['volumeInfo']['description']
+							document['description'].value = description
+							data_dict['description'] = description
+						except KeyError:
+							data_dict['description'] = ""
+						try:
+							category = book_info['items'][0]['volumeInfo']['categories']
+							data_dict['category'] = category
+						except KeyError:
+							pass
+						try:
+							cover_image = book_info['items'][0]['volumeInfo']['imageLinks']['thumbnail']
+							data_dict['cover_image'] = cover_image
+						except KeyError:
+							pass
+						storage['book_info'] = str(data_dict)
+						document['spinner'].style.color = "green"
+						document['spinner'].innerHTML = '<i class="fa fa-check"></i>'
+						document['msg'].style.color = "green"
+						if window.innerWidth >= 1000:
+							document['msg'].style.left = "20%"
+						elif window.innerWidth <= 500:
+							document['msg'].style.left = "26%"
+						else:
+							document['msg'].style.left = "13%"
+						document['msg'].innerHTML = "Found It!"
+					else:
+						document['spinner'].style.color = "red"
+						document['spinner'].innerHTML = '<i class="fa fa-times"></i>'
+						document['msg'].style.color = "red"
+						if window.innerWidth >= 1000:
+							document['msg'].style.left = "20%"
+						elif window.innerWidth <= 500:
+							document['msg'].style.left = "26%"
+						else:
+							document['msg'].style.left = "13%"
+						document['msg'].innerHTML = "Book not found :( . Are you sure the ISBN was correct? Check and try again."
+
+
+				def send(e=None):	
+					if document['isbn'].value != "":
+						document['spinner'].style.color = "black"
+						document['msg'].innerHTML = ""
+						document['spinner'].innerHTML = '<i class="fa fa-spinner fa-spin"></i>'
+						document['spinner'].style.visibility = "visible"
+						search_terms = '+'.join(document['isbn'].value.split())
+						jq.ajax({
+							'type': 'GET',
+							'url': f'https://www.googleapis.com/books/v1/volumes?q={search_terms}&key={key}',
+							'success': on_success
+						})
+
+
+				def sell_next(e=None):
+					storage['history_count'] = "0"
+					try:
+						if int(storage['history_count']) < 1:
+							if window.location.href.split("?")[-1] == "page=2":
+								history.pushState({'page': 2}, '', '?page=3')
+								storage['history_count'] = "1"
+							elif window.location.href.split("?")[-1] == window.location.href:
+								history.pushState({'page': 1}, '', '?page=2')
+								storage['history_count'] = "1"
+					except KeyError:
+						history.pushState({'page': 1}, '', '?page=2')
+						storage['history_count'] = "0"
+
+					if "page=2" in window.location.href.split("?")[-1]:
+						document['sell-form-1'].style.display = "none"
+						document['or-wrap'].style.display = "none"
+						document['isbn-btn'].style.display = "none"
+						document['custom-tooltip'].style.display = "none"
+						document['isbn'].style.display = "none"
+						document['spinner'].style.display = "none"
+						document['isbn-label'].style.display = "none"
+						document['msg'].style.display = "none"
+						book_info = eval(storage['book_info'])
+						book_info['isbn'] = document['isbn-2'].value
+						book_info['title'] = document['title'].value
+						if document['author'].value != "":
+							book_info['authors'] = document['author'].value.split(',')
+						else:
+							book_info['author'] = ""
+						if document['publisher'].value != "":
+							book_info['publisher'] = document['publisher'].value
+						else:
+							book_info['publisher'] = ""
+						if document['edition'].value != "":
+							book_info['edition'] = document['edition'].value
+						else:
+							book_info['edition'] = ""
+						if document['binding'].value != "":
+							book_info['binding'] = document['binding'].value
+						else:
+							book_info['binding'] = ""
+						if document['published'].value != "":
+							book_info['publish_date'] = document['published'].value
+						else:
+							book_info['publish_date'] = ""
+						try:
+							if book_info['category']:
+								pass
+						except KeyError:
+							book_info['category'] = ""
+						storage['book_info'] = str(book_info)
+						document['step-2-div'].style.display = ""
+						document['display-title'].innerHTML = book_info['title']
+						try:
+							if book_info['edition'][-1] == "1":
+								document['display-edition'].innerHTML = f"{book_info['edition']}st Edition"
+							elif book_info['edition'][-1] == "2":
+								document['display-edition'].innerHTML = f"{book_info['edition']}nd Edition"
+							elif book_info['edition'][-1] == "3":
+								document['display-edition'].innerHTML = f"{book_info['edition']}rd Edition"
+							else:
+								document['display-edition'].innerHTML = f"{book_info['edition']}th Edition"
+						except IndexError:
+							pass
+						document['display-publish-date'].innerHTML = book_info['publish_date']
+						document['display-author'].innerHTML = f"By {', '.join(book_info['authors'])}"
+						document['display-cover'].src = book_info['cover_image']
+						document['display-cover-a'].href = book_info['cover_image']
+						document['display-cover-a'].target = "_blank"
+						document['step-1'].className = document['step-1'].className + " complete"
+					elif "page=3" in window.location.href.split("?")[-1]:
+						book_info = eval(storage['book_info'])
+						book_info['price'] = document['price'].value
+						storage['book_info'] = str(book_info)
+						document['sell-form-1'].style.display = "none"
+						document['or-wrap'].style.display = "none"
+						document['isbn-btn'].style.display = "none"
+						document['custom-tooltip'].style.display = "none"
+						document['isbn'].style.display = "none"
+						document['spinner'].style.display = "none"
+						document['isbn-label'].style.display = "none"
+						document['msg'].style.display = "none"
+						document['step-3-div'].style.display = ""
+						document['step-2-div'].style.display = "none"
+						document['display-title-2'].innerHTML = book_info['title']
+						try:
+							if book_info['edition'][-1] == "1":
+								document['display-edition-2'].innerHTML = f"{book_info['edition']}st Edition"
+							elif book_info['edition'][-1] == "2":
+								document['display-edition-2'].innerHTML = f"{book_info['edition']}nd Edition"
+							elif book_info['edition'][-1] == "3":
+								document['display-edition-2'].innerHTML = f"{book_info['edition']}rd Edition"
+							else:
+								document['display-edition-2'].innerHTML = f"{book_info['edition']}th Edition"
+						except IndexError:
+							pass
+						document['display-publish-date-2'].innerHTML = book_info['publish_date']
+						document['display-author-2'].innerHTML = f"By {', '.join(book_info['authors'])}"
+						document['display-cover-2'].src = book_info['cover_image']
+						document['display-cover-a-2'].href = book_info['cover_image']
+						document['display-cover-a-2'].target = "_blank"
+						document['display-price-2'].innerHTML = f"${book_info['price']}"
+						document['display-description'].innerHTML = book_info['description']
+						document['step-1'].className = document['step-1'].className + " complete"
+						document['step-2'].className = document['step-2'].className + " complete"
+					else:
+						document['sell-form-1'].style.display = ""
+						document['or-wrap'].style.display = ""
+						document['isbn-btn'].style.display = ""
+						document['custom-tooltip'].style.display = ""
+						document['isbn'].style.display = ""
+						document['spinner'].style.display = ""
+						document['isbn-label'].style.display = ""
+						document['step-1'].className = "step-btn"
+						document['step-2'].className = "step-btn"
+						document['step-3'].className = "step-btn"
+
+				def enter_event(e):
+					if e.keyCode == 13:
+						send()
+				def form_enter_event(e):
+					if e.keyCode == 13:
+						if document['title'].value != "":
+							sell_next()
+
+				def add_image(e):
+					for element in document.getElementsByClassName("img-a"):
+						element.parentNode.removeChild(element)
+					jq('#images').trigger('click')
+
+				def changer(e):
+					if len(e.target.files) > 5:
+						alert("Maximum of 5 images only!")
+						e.target.value = ""
+					else:
+						for file in e.target.files:
+							url = window.URL.createObjectURL(file)
+							a = document.createElement("a")
+							a.href = url
+							a.target = "_blank"
+							a.className = "img-a"
+							a.style.marginRight = "15px"
+							a.style.marginBottom = "15px"
+							img = document.createElement("img")
+							img.src = url
+							img.style.width = "150px"
+							img.style.height = "auto"
+							img.style.borderRadius = "10px"
+							a <= img
+							document['show-images'].insertBefore(a, document['add-img-wrap'])					
+
+				def on_success_2(data, status, req):
+					print(req.responseText)
+					book_info = eval(storage['book_info'])
+					book_info['id'] = req.responseText
+					storage['book_info'] = str(book_info)
+
+				def send_data(e):
+					for key in eval(storage['book_info']):
+						print(key)
+						if document.getElementsByName(key).length < 1:
+							input = document.createElement("input")
+							input.type = "hidden"
+							input.name = key
+							if type(eval(storage['book_info'])[key]) is list:
+								input.value = ', '.join(eval(storage['book_info'])[key])
+							else:
+								input.value = eval(storage['book_info'])[key]
+							document['final-form'] <= input
+					if document['condition'].value == "Choose":
+						document['condition'].style.borderColor = "red"
+					elif document['price'].value == "":
+						document['price'].style.borderColor = "red"
+					elif document['quantity'].value == "":
+						document['quantity'].style.borderColor = "red"
+					elif document['images'].value == "":
+						alert("Please Attach An Image Of The Book!")
+					else:
+						book_info = eval(storage['book_info'])
+						book_info['price'] = document['price'].value
+						book_info['quantity'] = document['quantity'].value
+						book_info['condition'] = document['condition'].value
+						form_data = window.FormData.new(jq('#final-form')[0])
+						jq.ajax({
+							'type': 'POST',
+							'url': '/list_book',
+							'data': form_data,
+							'contentType': False,
+							'cache': False,
+							'processData': False,
+							'success': on_success_2
+						})
+				show_input = False
+				def show_input(e):
+					global show_input
+					if not show_input:
+						document['description'].value = document['display-description'].innerHTML
+						document['description'].style.display = "block"
+						document['display-description'].style.display = "none"
+						e.target.innerHTML = "Close"
+						show_input = True
+					else:
+						document['display-description'].innerHTML = document['description'].value
+						document['display-description'].style.display = "block"
+						document['description'].style.display = "none"
+						e.target.innerHTML = "Edit"
+						show_input = False
+
+
+				def on_success_4(data, status, req):
+					if req.responseText == "Active":
+						document['processing'].style.display = "none"
+						document['listed-wrap'].style.display = "inline-block"
+						book_info = eval(storage['book_info'])
+						document['listing-page'].href = f'/book/{book_info["id"]}'
+
+				def on_success_3(data, status, req):
+					if req.responseText == "Updated":
+						book_info = eval(storage['book_info'])
+						jq.ajax({
+							'type': 'POST',
+							'url': f'/book/activate/{book_info["id"]}',
+							'contentType': False,
+							'cache': False,
+							'processData': False,
+							'success': on_success_4
+						})
+
+				def confirm(e):
+					book_info = eval(storage['book_info'])
+					form_data = window.FormData.new(jq('#true-final-form')[0])
+					jq.ajax({
+						'type': 'POST',
+						'url': f'/update/description/{book_info["id"]}',
+						'data': form_data,
+						'contentType': False,
+						'cache': False,
+						'processData': False,
+						'success': on_success_3
+					})
+					document['processing'].style.display = "inline-block"
+					document['step-1'].className = document['step-1'].className + " complete"
+					document['step-2'].className = document['step-2'].className + " complete"
+					document['step-3'].className = document['step-3'].className + " complete"
+					window.location.href = window.location.href + "#"
+					document['step-3-div'].style.display = "none"
+
+				def events(e):
+					jq('#isbn-btn').click(send)
+					jq('#isbn').keypress(enter_event)
+					jq('#sell-next-1').click(sell_next)
+					jq('#next-btn').click(sell_next)
+					jq('.form-control').keypress(form_enter_event)
+					jq('.add-img').click(add_image)
+					jq('#images').change(changer)
+					jq('#next-btn').click(send_data)
+					jq('#edit-btn').click(show_input)
+					jq('#confirm-btn').click(confirm)
+
+				jq(events)
+			</script>
+			<div id="custom-tooltip" style="display: none;" class="custom-tooltip">
+			  <button class="custom-tooltip-btn">
+			    ?
+			  </button>
+			  <div class="custom-tooltip-content">
+			  <center>
+			  	<h4>
+			      What's An ISBN?
+			    </h4>
+			  </center>
+			  <center>
+			    <p>
+			      An ISBN is the number at the top of the barcode at the back of your book.
+			    </p>
+			  </center>
+			  <center>
+			    <img style="width: 100px; height: auto;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/EAN-13-ISBN-13.svg/1200px-EAN-13-ISBN-13.svg.png">
+			  </center>
+			  </div>
+			</div>
+			<div id="or-wrap" style="display: none;" class="or-wrap">
+				<hr class="body-light or-line">
+				<h1 class="or-header">or</h1>
+				<hr class="body-light or-line">
+			</div>
+			<div class="step-1-form-wrap">
+				<form id="sell-form-1" style="display: none;" class="sell-form-1">
+					<div class="row">
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label for="isbn">ISBN</label>
+							<input type="text" id="isbn-2" class="form-control" placeholder="0395874521">
+						</div>
+						<div class="col">
+							<label for="title">Title</label>
+							<input type="text" id="title" class="form-control" placeholder="Economics">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<label for="author">Author(s)</label>
+							<input type="text" id="author" class="form-control" placeholder="John B. Taylor">
+						</div>
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label for="publisher">Publisher</label>
+							<input type="text" id="publisher" class="form-control" placeholder="Houghton Mifflin">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+							<label for="edition">Edition</label>
+							<input type="number" min="0" id="edition" class="form-control" placeholder="2">
+						</div>
+						<div class="col">
+							<label for="binding">Binding</label>
+							<input type="text" id="binding" class="form-control" placeholder="Hardcover">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<label for="published">Publish Date</label>
+							<input type="number" id="published" min="1000" class="form-control" placeholder="1998">
+						</div>
+					</div>
+					<center>
+						<button type="button" id="sell-next-1" style="transform: translate(0px, 15px);" class="btn btn-primary">
+							Next
+						</button>
+					</center>
+				</form>
+			</div>
+			<div id="step-2-div" class="step-2-div" style="display: none;">
+				<div class="top-row">
+					<div class="left-col">
+						<p><h1 id="display-title"></h1></p>
+						<h5 id="display-edition"></h5>
+						<p id="display-author"></p>
+						<h5 id="display-publish-date"></h5>
+					</div>
+					<div class="right-col">
+						<a id="display-cover-a" href=""><img class="display-cover" id="display-cover" src=""></a>
+					</div>
+				</div>
+				<hr class="body-light">
+				<form id="final-form">
+					<label for="condition">Condition</label>
+					<select class="custom-select" id="condition" name="condition">
+					    <option selected>Choose</option>
+					    <option value="1">A: Excellent Conditon</option>
+					    <option value="2">B: Good Condition</option>
+					    <option value="2">C: Fair Condition</option>
+					    <option value="3">D: Bad Condition</option>
+	  				</select>
+	  				<label for="price">Price $JMD</label>
+	  				<input type="number" min="0.01" id="price" name="price"  class="form-control" placeholder="1000.00">
+	  				<label for="quantity">Quantity</label>
+	  				<input id="quantity" type="number" name="quantity" class="form-control" placeholder="1" min="1">
+	  				<label for="images">Images</label>
+	  				<br>
+	  				<input type="file" style="display: none;" name="images" id="images" accept="image/*" multiple>
+	  				<div id="show-images">
+	  					<div id="add-img-wrap" style="width: 150px;">
+	  						<img class="add-img" src="/static/assets/add-img.png">
+	  						<center><p>Add Image</p></center>
+	  					</div>
+	  				</div>
+  				</form>
+  				<center><button type="button" id="next-btn" class="btn btn-primary">Next</button></center>
+			</div>
+			<div id="step-3-div" class="step-3-div" style="display: none;">
+				<div class="top-row">
+					<div class="left-col">
+						<p><h1 id="display-title-2"></h1></p>
+						<h5 id="display-edition-2"></h5>
+						<p id="display-author-2"></p>
+						<h5 id="display-publish-date-2"></h5>
+					</div>
+					<div class="right-col">
+						<a id="display-cover-a-2" href=""><img class="display-cover" id="display-cover-2" src=""></a>
+						<h4 id="display-price-2"></h4>
+					</div>
+				</div>
+				<hr class="body-light">
+				<h4><label for="display-description">Description</label></h4>
+				<p class="light-a" id="display-description"></p>
+				<button class="edit-btn light-label" id="edit-btn">Edit</button>
+				<form id="true-final-form">
+					<textarea id="description" name="description-2" style="display: none;"></textarea>
+				</form>
+				<center><button id="confirm-btn" class="btn btn-success">Confirm</button></center>
+			</div>
+			<div id="processing">
+				<div class="spinner-border spin" role="status">
+					<span class="sr-only" >Loading...</span>
+				</div>
+				<center><p class="light-a">Processing</p></center>
+			</div>
+			<div id="listed-wrap">
+				<center>
+					<div class="tick-wrap">
+						<i class="fa fa-check"></i>
+					</div>
+				</center>
+				<center><p>Listed!</p></center>
+				<center><a id="listing-page" href="#">Go To Listing Page</a></center>
+			</div>
+		</div>
+		<script type="text/python">
+			from browser import window, document
+			jq = window.jQuery
+			state = True
+			def open_close(e):
+				global state
+				if state is False:
+					i = document.getElementsByClassName("fa fa-chevron-left")
+					i[0].className = i[0].className.replace("left", "right")
+					document['side-bar'].style.transition = "1.5s"
+					document['side-bar'].style.width = "60%"
+					document['side-bar-wrapper'].style.width = "100px"
+					anchs = document.getElementsByClassName("side-bar-a")
+					for a in anchs:
+						a.style.display = "none"
+					imgs = document.getElementsByClassName("compact-img")
+					for img in imgs:
+						img.style.display = "inherit"
+					state = True
+				else:
+					i = document.getElementsByClassName("fa fa-chevron-right")
+					i[0].className = i[0].className.replace("right", "left")
+					if window.innerWidth > 1600:
+						document['side-bar-wrapper'].style.width = "25%"
+					elif window.innerWidth > 1100:
+						document['side-bar-wrapper'].style.width = "30%"
+					elif window.innerWidth > 1000:
+						document['side-bar-wrapper'].style.width = "40%"
+					elif window.innerWidth > 800:
+						document['side-bar-wrapper'].style.width = "40%"
+					elif window.innerWidth > 700:
+						document['side-bar-wrapper'].style.width = "50%"
+					elif window.innerWidth > 620:
+						document['side-bar-wrapper'].style.width = "60%"
+					elif window.innerWidth > 450:
+						document['side-bar-wrapper'].style.width = "70%"
+					else:
+						document['side-bar-wrapper'].style.width = "85%"
+
+					document['side-bar'].style.transition = "0.5s"
+					document['side-bar'].style.width = "90%"
+					anchs = document.getElementsByClassName("side-bar-a")
+					for a in anchs:
+						a.style.display = "block"
+					imgs = document.getElementsByClassName("compact-img")
+					for img in imgs:
+						img.style.display = "none"
+					state = False
+
+			def unhighlight(e):
+				if "side-bar-a" not in e.target.className and "side-bar-img" not in e.target.className:
+					imgs = document.getElementsByClassName(e.target.value)
+					for img in imgs:
+						if "light" in img.className:
+							img.src = img.src.replace("dark", "light")
+						else:
+							img.src = img.src.replace("light", "dark")
+				elif "side-bar-a" in e.target.className:
+					li = e.target.parentNode
+					imgs = document.getElementsByClassName(li.value)
+					for img in imgs:
+						if "light" in img.className:
+							img.src = img.src.replace("dark", "light")
+						else:
+							img.src = img.src.replace("light", "dark")
+
+
+			def highlight(e):
+				if "side-bar-a" not in e.target.className and "side-bar-img" not in e.target.className:
+					imgs = document.getElementsByClassName(e.target.value)
+					for img in imgs:
+						if "dark" in img.src:
+							img.src = img.src.replace("dark", "light")
+						else:
+							img.src = img.src.replace("light", "dark")
+				elif "side-bar-a" in e.target.className:
+					li = e.target.parentNode
+					imgs = document.getElementsByClassName(li.value)
+					for img in imgs:
+						if "dark" in img.src:
+							img.src = img.src.replace("dark", "light")
+						else:
+							img.src = img.src.replace("light", "dark")
+
+
+			def events(e):
+				jq('.side-bar-item').hover(highlight, unhighlight)
+				jq('.side-bar-btn').click(open_close)
+
+			jq(events)
+		</script>
+	</div>
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends "authentication_pages.html" %}
+{% block form %}
+	<form id="signup-form-1" class="signup-form" visible="true">
+		<div class="form-group">
+			<label for="first">First Name</label>
+			<input type="text" class="form-control pill" id="firstname" name="firstname" placeholder="John">
+		</div>
+		<div class="form-group">
+			<label for="lastname">Last Name</label>
+			<input type="text" class="form-control pill" id="lastname" name="lastname" placeholder="Doe">
+		</div>
+		<div class="form-group">
+			<label for="email-zone">Email</label>
+			<input type="text" class="form-control pill" id="email-zone" name="email" placeholder="email@example.com">
+			<small id="warning" for="email-zone"></small>
+			<input type="hidden" name="o_auth" id="o_auth" value="">
+		</div>
+		<input type="hidden" name="part" value="1">
+		<center><button id="continue" type="button" class="btn btn-primary">Continue</button></center>
+	</form>
+	<form id="signup-form-2" class="signup-form" style="display: none;" visible="false">
+		<div class="form-group">
+			<label for="password">Password</label>
+			<input id="hidden-fname" type="hidden" name="fname">
+			<input id="hidden-lname" type="hidden" name="lname">
+			<input id="hidden-email" type="hidden" name="email">
+			<input type="password" class="form-control pill" id="password" name="password">
+		</div>
+		<div class="form-group">
+			<label for="re-password">Re-Enter Password</label>
+			<input type="password" class="form-control pill" id="re-password" name="re-password">
+			<small id="warning-2" for="re-password"></small>
+		</div>
+		<div class="form-group">
+			<label for="cellphone">Cellphone</label>
+			<input type="text" class="form-control pill" id="cellphone" name="cellphone" placeholder="(876)111-1111">
+			<small id="warning-3" for="cellphone"></small>
+		</div>
+		<input type="hidden" name="part" value="2">
+		<center><button id="signup-btn" type="button" class="btn btn-success">Sign Up</button></center>
+	</form>
+	<hr>
+	<input type="hidden" id="google-success">
+	<div id="google-login" class="g-signin2" data-onsuccess="onSignIn"></div>
+	<br>
+	<p id="signup-link">Already Have An Account? <a href="/login">Login</a></p>
+	<script type="text/javascript">
+			function onSignIn(googleUser) {
+				var profile = googleUser.getBasicProfile();
+  				var input = document.getElementById("google-success");
+  				var email = document.getElementById("email-zone");
+  				email.setAttribute("value", profile.getEmail())
+  				input.setAttribute("value", true);
+  				$('#google-success').trigger('change')
+			}
+	</script>
+	<script type="text/python">
+		from browser import window, document, local_storage
+
+		storage = local_storage.storage
+
+		cell_re = window.RegExp.new("^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$", "im")
+
+		email_re = window.RegExp.new("^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$")
+
+		jq = window.jQuery
+
+		history = window.history
+		def show_func(e):
+			if window.location.href.split('?')[-1] != "page=2":
+				document['signup-form-1'].style.display = "block"
+				document['signup-form-1'].visible = True
+				document['signup-form-2'].visible = False
+				document['signup-form-2'].style.display = "none"
+				document['back-btn'].style.visibility = "hidden"
+				storage['signup_page'] = "1"
+			else:
+				document['signup-form-2'].style.display = "block"
+				document['signup-form-2'].visible = True
+				document['signup-form-1'].visible = False
+				document['signup-form-1'].style.display = "none"
+				if window.innerWidth <= 1024:
+					document['back-btn'].style.visibility = "visible"
+				storage['signup_page'] = "2"
+
+		window.addEventListener('popstate', show_func)
+
+		try:
+			if storage['user_info'] and storage['signup_page']:
+				if storage['signup_page'] == "1" or window.location.href.split('?')[-1] != "page=2":
+					document['signup-form-1'].style.display = "block"
+					document['signup-form-1'].visible = True
+					document['signup-form-2'].visible = False
+					document['back-btn'].style.visibility = "hidden"
+				else:
+					document['signup-form-2'].style.display = "block"
+					document['signup-form-2'].visible = True
+					document['signup-form-1'].visible = False
+					if window.innerWidth <= 1024:
+						document['back-btn'].style.visibility = "visible"
+		except KeyError:
+			storage['user_info'] = "{}"
+			storage['signup_page'] = "1"
+			document['signup-form-1'].style.display = "block"
+			document['signup-form-1'].visible = True
+			document['signup-form-2'].visible = False
+			document['back-btn'].style.visibility = "hidden"
+
+
+		def on_success(data, status, req):
+			if req.responseText == "Continue":
+				document['signup-form-1'].style.display = "none"
+				document['signup-form-1'].visible = False
+				document['signup-form-2'].style.display = "block"
+				document['signup-form-2'].visible = True
+				if window.innerWidth <= 1024:
+					document['back-btn'].style.visibility = "visible"
+				storage['signup_page'] = "2"
+				try:
+					if int(storage['history_count']) < 1:
+						history.pushState({'page': 1}, 'Login', "?page=2")
+						storage['history_count'] = "1"
+				except KeyError:
+					history.pushState({'page': 1}, 'Login', "?page=2")
+					storage['history_count'] = "0"
+			elif req.responseText == "User Already Exists":
+				document['warning'].innerHTML = "Email Address Already Taken"
+				document['warning'].style.borderColor = "red"
+			elif req.responseText.split('/')[-1] == "signup":
+				storage['user_info'] = "{}"
+				storage['signup_page'] = "1"
+				storage['history_count'] = "0"
+				window.location.href = "/"
+			else:
+				storage['user_info'] = "{}"
+				storage['signup_page'] = "1"
+				storage['history_count'] = "0"
+				window.location.href = req.responseText
+
+		def send_data(e=None):
+			inputs = document.getElementsByClassName("pill")
+			for input in inputs:
+				if input.value == "":
+					input.style.borderColor = "red"
+				else:
+					input.style.borderColor = "green"
+			form_data = window.FormData.new(jq('#signup-form-1')[0])
+			email = document['email-zone']
+			warning = document['warning']
+			fname = document['firstname']
+			lname = document['lastname']
+			document['hidden-fname'].value = fname.value
+			document['hidden-lname'].value = lname.value
+			document['hidden-email'].value = email.value
+			if email_re.test(email.value) and lname.value != "" and fname.value != "":
+				email.style.borderColor = "green"
+				fname.style.borderColor = "green"
+				lname.style.borderColor = "green"
+				warning.innerHTML = ""
+				storage['user_info'] = str({'fname': fname.value, 'lname': lname.value, 'email': email.value, 'part': "1"})
+				jq.ajax({
+					'type': 'POST',
+					'url': '/signup',
+					'data': form_data,
+					'contentType': False,
+					'cache': False,
+					'processData': False,
+					'success': on_success
+				})
+				storage['history_count'] = "0"
+			else:
+				if email_re.test(email.value) is False:
+					email.style.borderColor = "red"
+					warning.innerHTML = "Email Invalid!"
+					warning.style.color = "red"
+				else:
+					email.style.borderColor = "green"
+					warning.innerHTML = ""
+				if fname.value == "":
+					fname.style.borderColor = "red"
+				if lname.value == "":
+					lname.style.borderColor = "red"
+
+		def on_success_2(data, status, req):
+			if req.responseText.split('/')[-1] == "signup":
+				storage['user_info'] = "{}"
+				storage['signup_page'] = "1"
+				storage['history_count'] = "0"
+				window.location.href = "/"
+			else:
+				storage['user_info'] = "{}"
+				storage['signup_page'] = "1"
+				storage['history_count'] = "0"
+				window.location.href = req.responseText
+
+		def send_data_2(e=None):
+			inputs = document.getElementsByClassName("pill")
+			for input in inputs:
+				if input.value == "":
+					input.style.borderColor = "red"
+				else:
+					input.style.borderColor = "green"
+			data = eval(storage['user_info'])
+			password = document['password']
+			re_password = document['re-password']
+			cellphone = document['cellphone']
+			warning_2 = document['warning-2']
+			warning_3 = document['warning-3']
+			if cell_re.test(cellphone.value) and password.value != "" and re_password.value != "" and password.value == re_password.value:
+				password.style.borderColor = "green"
+				re_password.style.borderColor = "green"
+				cellphone.style.borderColor = "green"
+				warning_2.innerHTML = ""
+				data['password'] = password.value
+				data['cellphone'] = cellphone.value
+				form_data = window.FormData.new(jq('#signup-form-2')[0])
+				jq.ajax({
+					'type': 'POST',
+					'url': '/signup',
+					'data': form_data,
+					'contentType': False,
+					'cache': False,
+					'processData': False,
+					'success': on_success_2
+				})
+			else:
+				if cell_re.test(cellphone.value) is False:
+					cellphone.style.borderColor = "red"
+					warning_3.innerHTML = "Cellphone Invalid!"
+					warning_3.style.color = "red"
+				else:
+					cellphone.style.borderColor = "green"
+					warning_2.innerHTML = ""
+				if password.value == "":
+					password.style.borderColor = "red"
+				if password.value != re_password.value:
+					password.style.borderColor = "red"
+					re_password.style.borderColor = "red"
+					warning_2.innerHTML = "Password Must Match!"
+					warning_2.style.color = "red"
+				else:
+					password.style.borderColor = "green"
+					re_password.style.borderColor = "green"
+					warning_2.innerHTML = ""
+
+		def enter_event(e):
+			if e.keyCode == 13:
+				if e.target.value != "":
+					e.preventDefault()
+					print(document['signup-form-1'].visible)
+					if document['signup-form-1'].visible:
+						send_data()
+					else:
+						send_data_2()
+					e.target.style.borderColor = "green"
+				else:
+					e.target.style.borderColor = "red"
+				return False
+
+		def back(e):
+			document['signup-form-2'].style.display = "none"
+			document['signup-form-2'].visible = False
+			document['signup-form-1'].style.display = "block"
+			document['signup-form-1'].visible = True
+			document['back-btn'].style.visibility = "hidden"
+			storage['signup_page'] = "1"
+
+		def o_auth(e):
+			document['o_auth'].value = "1"
+			document['firstname'].value = "You're"
+			document['lastname'].value = "Good To Go"
+			send_data()
+
+		def form_event(e):
+			jq('#continue').click(send_data)
+			jq('#signup-btn').click(send_data_2)
+			jq('.pill').keypress(enter_event)
+			jq('.back-btn').click(back)
+			jq('#google-success').change(o_auth)
+
+		jq(form_event)
+	</script>
+{% endblock %}
